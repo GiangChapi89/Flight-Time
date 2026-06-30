@@ -2,259 +2,349 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý lịch bay nhân sự</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Quản lý lịch bay</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
+        :root {
+            --primary: #f2d27e;
+            --border: #ccc;
+            --bg: #f4f4f9;
         }
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-        .table-container {
-            overflow-x: auto;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            background: white;
-            border-radius: 8px;
-            padding: 10px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-            min-width: 800px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-            vertical-align: middle;
-        }
-        th {
-            background-color: #f2d27e;
-            color: #333;
-            font-weight: bold;
-        }
-        input {
-            width: 95%;
-            padding: 6px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            text-align: center;
-            font-size: 14px;
-        }
-        input[type="date"] {
-            cursor: pointer;
-        }
-        /* Màu sắc trạng thái */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 15px; background-color: var(--bg); }
+        h2 { text-align: center; color: #333; font-size: 1.2rem; margin-bottom: 10px; }
+
+        /* Toolbar Buttons */
+        .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn { background: #eee; border: 1px solid #ccc; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 600; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+        .btn:hover { background: #ddd; }
+        .btn-primary { background: #2196F3; color: white; border-color: #1976D2; }
+        .btn-primary:hover { background: #1976D2; }
+        .btn-danger { background: #f44336; color: white; border-color: #d32f2f; }
+        .btn-danger:hover { background: #d32f2f; }
+        .btn-success { background: #4CAF50; color: white; border-color: #388E3C; }
+        .btn-success:hover { background: #388E3C; }
+        .btn-add-flight { background: #ff9800; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .btn-add-flight:hover { background: #f57c00; }
+        .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; }
+        .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
+
+        /* Table Container */
+        .table-container { overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 5px; }
+        table { width: 100%; border-collapse: collapse; min-width: 750px; font-size: 13px; }
+        th, td { border: 1px solid var(--border); padding: 8px 4px; text-align: center; vertical-align: middle; }
+        th { background-color: var(--primary); color: #333; }
+        
+        /* Inputs and Selects */
+        input, select { width: 100%; box-sizing: border-box; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-size: 13px; background: white; }
+        select { cursor: pointer; }
+        .action-cell { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
+        .btn-remove-row { background: #ffebee; border: 1px solid #ef9a9a; color: #c62828; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-remove-row:hover { background: #ffcdd2; }
+
+        /* Status Colors */
         .status-green { background-color: #a5d6a7 !important; color: #1b5e20; font-weight: bold; }
         .status-yellow { background-color: #fff59d !important; color: #f57f17; font-weight: bold; }
         .status-red { background-color: #ef9a9a !important; color: #b71c1c; font-weight: bold; }
+
+        /* Tooltip for overflow */
+        .cell-content { max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; display: inline-block; width: 100%; }
+        .cell-content:hover { overflow: visible; background: white; z-index: 10; box-shadow: 0 4px 8px rgba(0,0,0,0.2); padding: 4px; border-radius: 4px; white-space: normal; word-break: break-all; position: absolute; top: -5px; left: 0; width: auto; max-width: 250px; }
+        td { position: relative; } /* Để tooltip absolute đúng vị trí */
+
+        .add-flight-row { margin-top: 10px; display: flex; gap: 10px; align-items: center; background: #fafafa; padding: 8px; border-radius: 5px; border: 1px dashed #ccc; }
         
-        .row-id { background-color: #f2d27e; font-weight: bold; }
-        .footer-note {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #fff3cd;
-            border-left: 6px solid #ffc107;
+        @media (max-width: 600px) { 
+            .toolbar { justify-content: center; } 
+            .btn { font-size: 12px; padding: 6px 10px; }
+            table { font-size: 11px; min-width: 650px; }
+            th, td { padding: 5px 2px; }
+            input, select { font-size: 11px; padding: 4px; }
         }
     </style>
 </head>
 <body>
 
-    <h2>BẢNG THEO DÕI LỊCH BAY NHÂN SỰ</h2>
-    
+    <h2>QUẢN LÝ LỊCH BAY NHÂN SỰ</h2>
+
+    <!-- Thanh công cụ -->
+    <div class="toolbar">
+        <button class="btn btn-success" onclick="addNewRow()">➕ Thêm</button>
+        <button class="btn btn-danger" onclick="deleteSelectedRow()">🗑️ Xóa</button>
+        <button class="btn btn-primary" onclick="saveToJSON()">💾 Lưu File</button>
+        <div class="file-input-wrapper">
+            <button class="btn btn-primary" style="background:#ff9800; border-color:#f57c00;">📂 Tải lên</button>
+            <input type="file" id="fileInput" accept=".json" onchange="loadFromJSON(event)">
+        </div>
+    </div>
+
+    <!-- Bảng dữ liệu -->
     <div class="table-container">
         <table id="scheduleTable">
             <thead>
                 <tr>
-                    <th style="width: 50px;">STT</th>
-                    <th style="width: 150px;">Họ và tên</th>
+                    <th style="width: 40px;">STT</th>
+                    <th style="min-width: 100px;">Họ và tên</th>
                     <th style="width: 80px;">Bài bay</th>
-                    <th style="width: 100px;">Thời gian<br>giãn cách</th>
-                    <th style="width: 130px;">Chuyến<br>gần nhất</th>
-                    <th style="width: 130px;">Chuyến<br>tiếp theo</th>
-                    <th style="width: 130px;">Hôm nay<br>(+ - ngày)</th>
-                    <th style="width: 130px;">Ngày<br>kiểm tra</th>
-                    <th style="width: 130px;">Ngày kiểm tra<br>(+-ngày)</th>
+                    <th style="width: 80px;">Giãn cách</th>
+                    <th style="width: 130px;">Chuyến gần nhất</th>
+                    <th style="width: 130px;">Chuyến tiếp theo</th>
+                    <th style="width: 120px;">Hôm nay (+-)</th>
+                    <th style="width: 130px;">Ngày kiểm tra</th>
+                    <th style="width: 120px;">Ngày k.tra (+-)</th>
+                    <th style="width: 60px;">Hành động</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <!-- Các dòng dữ liệu sẽ được JavaScript tạo ra ở đây -->
+                <!-- Dữ liệu sẽ được render vào đây -->
             </tbody>
         </table>
     </div>
 
-    <div class="footer-note">
-        <strong>Lưu ý:</strong> Cột "Chuyến gần nhất" có thể chỉnh sửa. Hệ thống sẽ tự động tính toán "Chuyến tiếp theo", trạng thái "Hôm nay" và "Ngày kiểm tra" dựa trên <strong>ngày hiện tại thực tế</strong> của máy tính bạn.
+    <!-- Quản lý danh sách Bài bay -->
+    <div class="add-flight-row">
+        <span style="font-weight: bold; white-space: nowrap;">Danh sách Bài bay:</span>
+        <select id="flightListSelect" style="width: 80px; text-align: center;">
+            <!-- Options tự động render bằng JS -->
+        </select>
+        <input type="number" id="newFlightInput" placeholder="Nhập số mới" min="1" style="width: 100px;">
+        <button class="btn-add-flight" onclick="addNewFlightOption()">+ Thêm số</button>
     </div>
 
     <script>
-        // 1. Khởi tạo dữ liệu mẫu cho 20 nhân sự (như trong hình ảnh của bạn)
-        // Lấy ngày hiện tại làm mốc tính toán mẫu
-        const today = new Date();
-        // Hàm helper để tạo ngày trong quá khứ (giả lập dữ liệu)
-        function getPastDate(daysAgo) {
-            let d = new Date(today);
-            d.setDate(d.getDate() - daysAgo);
-            return d.toISOString().split('T')[0];
-        }
-
-        // Tạo dữ liệu mặc định
-        let employees = [];
-        // Mốc ngày bắt đầu ảo
-        let baseDate = new Date(today);
-        baseDate.setDate(baseDate.getDate() - 2); // Giả sử hôm nay cách ngày kiểm tra đầu tiên 2 ngày
-
-        for (let i = 1; i <= 20; i++) {
-            // Giả lập logic tuần tự như hình ảnh (Ngày gần nhất cách đây 30 ngày, tăng dần)
-            let gapDays = 30 + (i - 1); 
-            let tempDate = new Date(baseDate);
-            tempDate.setDate(tempDate.getDate() - (30 - i)); // Tạo ngày giả lập dựa trên STT
-            
-            employees.push({
-                id: i,
-                name: `Nguyễn Văn ${i}`,
-                flight: i,
-                gap: gapDays,
-                lastDate: tempDate.toISOString().split('T')[0] // Format YYYY-MM-DD
-            });
-        }
+        // --- 1. CẤU HÌNH DỮ LIỆU VÀ BIẾN TOÀN CỤC ---
+        // Danh sách bài bay mặc định (1 đến 10)
+        let flightOptions = Array.from({length: 10}, (_, i) => (i + 1).toString());
+        // Dữ liệu nhân sự (Khởi tạo 2 mẫu)
+        let employees = [
+            { id: 1, name: 'Nguyễn Văn A', flight: '1', gap: 30, lastDate: '2026-05-30' },
+            { id: 2, name: 'Trần Thị B', flight: '2', gap: 45, lastDate: '2026-06-15' }
+        ];
+        let nextId = 3; 
 
         const tableBody = document.getElementById('tableBody');
+        const flightSelect = document.getElementById('flightListSelect');
 
-        // 2. Hàm tính toán logic
-        function calculateDates(rowData) {
-            // Lấy ngày hiện tại
-            const todayDate = new Date();
-            todayDate.setHours(0,0,0,0);
-
-            // 1. Tính ngày chuyến tiếp theo (Ngày gần nhất + Thời gian giãn cách)
-            const lastDateObj = new Date(rowData.lastDate);
-            const gapNum = parseInt(rowData.gap);
-            const nextDateObj = new Date(lastDateObj);
-            nextDateObj.setDate(nextDateObj.getDate() + gapNum);
-            const nextDateStr = nextDateObj.toISOString().split('T')[0];
-
-            // 2. Tính cột "Hôm nay (+- ngày)"
-            const diffToday = Math.ceil((nextDateObj - todayDate) / (1000 * 60 * 60 * 24));
-            let todayStatus = "";
-            let todayClass = "";
-            
-            if (diffToday > 0) {
-                todayStatus = `+ ${diffToday}`;
-                if (diffToday > 10) todayClass = "status-green";
-                else if (diffToday <= 10) todayClass = "status-yellow";
-            } else {
-                todayStatus = `${diffToday}`; // Số âm
-                todayClass = "status-red";
-            }
-
-            // 3. Tính cột "Ngày kiểm tra (+- ngày)"
-            // Lấy ngày từ ô input Ngày kiểm tra (nếu đang tính lần đầu có thể rỗng, mặc định lấy Ngày gần nhất hoặc Hôm nay làm gốc)
-            // Trong logic đề bài: So sánh ngày kiểm tra với ngày chuyến tiếp theo.
-            // Nếu chưa có ngày kiểm tra nào được chọn, ta mặc định là ngày gần nhất để hiển thị luôn kết quả.
-            // Nhưng để đúng logic động: 
-            // Ta sẽ so sánh NGÀY KIỂM TRA ĐƯỢC NHẬP với NGÀY CHUYẾN TIẾP THEO.
-            // Ở đây tôi sẽ trả về một object chứa kết quả tính dựa trên 1 biến checkDate được truyền vào (mặc định là hôm nay nếu chưa chọn)
-            
-            return {
-                nextDateStr: nextDateStr,
-                diffToday: diffToday,
-                todayStatus: todayStatus,
-                todayClass: todayClass
-            };
+        // --- 2. CÁC HÀM HỖ TRỢ XỬ LÝ NGÀY (An toàn tránh lỗi Timezone) ---
+        function parseDate(dateString) {
+            if (!dateString) return null;
+            const parts = dateString.split('-');
+            return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        }
+        function formatToYMD(dateObj) {
+            if (!dateObj) return '';
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+        function formatDisplay(dateString) {
+            if (!dateString) return '';
+            const parts = dateString.split('-');
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+        // Lấy ngày hôm nay thực tế
+        function getTodayStr() {
+            return formatToYMD(new Date());
         }
 
-        // 3. Hàm Render bảng
+        // --- 3. HÀM TÍNH TOÁN LOGIC ---
+        function calculateRowData(emp) {
+            const todayStr = getTodayStr();
+            const todayObj = parseDate(todayStr);
+            const lastObj = parseDate(emp.lastDate);
+            
+            // Tính ngày chuyến tiếp theo
+            const nextObj = new Date(lastObj);
+            nextObj.setDate(nextObj.getDate() + parseInt(emp.gap));
+            const nextStr = formatToYMD(nextObj);
+
+            // Tính cột Hôm nay (+-)
+            const diffToday = Math.ceil((nextObj - todayObj) / (1000 * 60 * 60 * 24));
+            let todayStatus = diffToday > 0 ? `+ ${diffToday}` : `${diffToday}`;
+            let todayClass = diffToday > 10 ? "status-green" : (diffToday > 0 ? "status-yellow" : "status-red");
+
+            // Tính cột Ngày kiểm tra (+-) dựa trên ngày được chọn
+            const checkDateStr = emp.checkDate || todayStr;
+            const checkObj = parseDate(checkDateStr);
+            const diffCheck = Math.ceil((nextObj - checkObj) / (1000 * 60 * 60 * 24));
+            
+            let checkStatus = emp.checkDate ? (diffCheck > 0 ? `+ ${diffCheck}` : `${diffCheck}`) : '';
+            let checkClass = "";
+            if(emp.checkDate) {
+                checkClass = diffCheck > 10 ? "status-green" : (diffCheck > 0 ? "status-yellow" : "status-red");
+            }
+
+            return { nextStr, todayStatus, todayClass, checkStatus, checkClass };
+        }
+
+        // --- 4. RENDER BẢNG ---
         function renderTable() {
             tableBody.innerHTML = '';
             
+            // Cập nhật danh sách Bài bay vào Select
+            flightSelect.innerHTML = '';
+            flightOptions.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt;
+                option.textContent = opt;
+                flightSelect.appendChild(option);
+            });
+
             employees.forEach((emp, index) => {
-                const row = document.createElement('tr');
+                const calc = calculateRowData(emp);
                 
-                // Lấy kết quả tính toán
-                const calc = calculateDates(emp);
-                const checkDateInput = emp.checkDate ? emp.checkDate : today.toISOString().split('T')[0]; // Mặc định là hôm nay để hiện màu
-
-                // Tính toán cột ngày kiểm tra dựa trên dữ liệu đã lưu
-                const checkDateObj = new Date(checkDateInput);
-                checkDateObj.setHours(0,0,0,0);
-                const nextDateObj = new Date(calc.nextDateStr);
-                nextDateObj.setHours(0,0,0,0);
-                const diffCheck = Math.ceil((nextDateObj - checkDateObj) / (1000 * 60 * 60 * 24));
-                
-                let checkStatus = "";
-                let checkClass = "";
-                if (diffCheck > 0) {
-                    checkStatus = `+ ${diffCheck}`;
-                    if (diffCheck > 10) checkClass = "status-green";
-                    else if (diffCheck <= 10) checkClass = "status-yellow";
-                } else {
-                    checkStatus = `${diffCheck}`;
-                    checkClass = "status-red";
-                }
-
-                row.innerHTML = `
-                    <td class="row-id">${emp.id}</td>
-                    <td>${emp.name}</td>
-                    <td>${emp.flight}</td>
-                    <td>${emp.gap}</td>
+                const tr = document.createElement('tr');
+                tr.dataset.index = index;
+                tr.innerHTML = `
+                    <td style="background:#f2d27e; font-weight:bold;">${emp.id}</td>
+                    <td><input type="text" class="editable" data-field="name" value="${emp.name}" style="min-width:80px;"></td>
                     <td>
-                        <input type="date" class="last-date-input" value="${emp.lastDate}" data-index="${index}">
+                        <select class="editable" data-field="flight" style="min-width:60px;">
+                            ${flightOptions.map(opt => `<option value="${opt}" ${opt === emp.flight ? 'selected' : ''}>${opt}</option>`).join('')}
+                        </select>
                     </td>
-                    <td style="background-color: #e8f5e9;">${calc.nextDateStr}</td>
-                    <td class="${calc.todayClass}">${calc.todayStatus}</td>
-                    <td>
-                        <input type="date" class="check-date-input" value="${emp.checkDate || ''}" data-index="${index}" placeholder="Chọn ngày">
+                    <td><input type="number" class="editable" data-field="gap" value="${emp.gap}" style="width:50px;"></td>
+                    <td><input type="date" class="editable" data-field="lastDate" value="${emp.lastDate}"></td>
+                    <td style="background:#e8f5e9; font-weight:bold;">
+                        <div class="cell-content">${formatDisplay(calc.nextStr)}</div>
                     </td>
-                    <td class="${checkClass}">${emp.checkDate ? checkStatus : ''}</td>
+                    <td class="${calc.todayClass}">
+                        <div class="cell-content">${calc.todayStatus}</div>
+                    </td>
+                    <td><input type="date" class="editable check-date" data-field="checkDate" value="${emp.checkDate || ''}" placeholder="Chọn ngày"></td>
+                    <td class="${calc.checkClass}">
+                        <div class="cell-content">${calc.checkStatus}</div>
+                    </td>
+                    <td><button class="btn-remove-row" onclick="deleteSelectedRow()">Xóa</button></td>
                 `;
-                tableBody.appendChild(row);
+                tableBody.appendChild(tr);
             });
         }
 
-        // 4. Xử lý sự kiện (Event Listeners)
-        // Sự kiện khi thay đổi cột "Chuyến gần nhất"
+        // --- 5. XỬ LÝ SỰ KIỆN NHẬP LIỆU VÀ NÚT BẤM ---
+        
+        // Lưu dữ liệu khi người dùng thay đổi ô Input/Select
         document.addEventListener('change', function(e) {
-            if (e.target.classList.contains('last-date-input')) {
-                const index = e.target.getAttribute('data-index');
-                const newDate = e.target.value;
+            if (e.target.classList.contains('editable')) {
+                const tr = e.target.closest('tr');
+                if(!tr) return;
+                const index = tr.dataset.index;
+                const field = e.target.dataset.field;
+                employees[index][field] = e.target.value;
                 
-                // Cập nhật dữ liệu
-                employees[index].lastDate = newDate;
-                
-                // Nếu người dùng thay đổi ngày gần nhất, reset ngày kiểm tra để tính lại từ đầu (tùy logic, hoặc giữ nguyên)
-                employees[index].checkDate = ''; 
-                
-                // Render lại bảng
-                renderTable();
-            }
-            
-            // Sự kiện khi thay đổi cột "Ngày kiểm tra"
-            if (e.target.classList.contains('check-date-input')) {
-                const index = e.target.getAttribute('data-index');
-                const newCheckDate = e.target.value;
-                
-                // Cập nhật dữ liệu
-                employees[index].checkDate = newCheckDate;
-                
-                // Render lại bảng
+                // Reset ngày kiểm tra nếu thay đổi chuyến gần nhất
+                if(field === 'lastDate') {
+                    employees[index].checkDate = '';
+                }
                 renderTable();
             }
         });
 
-        // 5. Chạy lần đầu
+        // Thêm dòng mới
+        function addNewRow() {
+            const todayStr = getTodayStr();
+            employees.push({
+                id: nextId++,
+                name: 'Nhân sự mới',
+                flight: flightOptions[0] || '1',
+                gap: 30,
+                lastDate: todayStr
+            });
+            renderTable();
+            // Cuộn xuống dưới cùng (hữu ích trên mobile)
+            document.querySelector('.table-container').scrollLeft = 9999;
+        }
+
+        // Xóa dòng đang chọn (Xóa dòng cuối cùng nếu chưa chọn dòng nào để tránh lỗi)
+        function deleteSelectedRow() {
+            if(employees.length <= 1) {
+                alert("Cần ít nhất 1 nhân sự!");
+                return;
+            }
+            // Lấy dòng đang được focus hoặc dòng cuối
+            const activeInput = document.activeElement;
+            let rowToDelete = -1;
+            if(activeInput && activeInput.closest('tr')) {
+                rowToDelete = parseInt(activeInput.closest('tr').dataset.index);
+            }
+            
+            if(rowToDelete === -1 || isNaN(rowToDelete)) {
+                // Nếu không tìm thấy, xóa dòng cuối (hành động an toàn)
+                if(confirm("Bạn chưa chọn dòng nào. Có muốn xóa dòng cuối cùng không?")) {
+                    employees.pop();
+                } else { return; }
+            } else {
+                if(confirm("Bạn có chắc muốn xóa nhân sự này?")) {
+                    employees.splice(rowToDelete, 1);
+                } else { return; }
+            }
+            renderTable();
+        }
+
+        // --- 6. QUẢN LÝ BÀI BAY ---
+        function addNewFlightOption() {
+            const input = document.getElementById('newFlightInput');
+            const val = input.value.trim();
+            if(!val) { alert("Vui lòng nhập số bài bay!"); return; }
+            if(flightOptions.includes(val)) { alert("Số này đã tồn tại!"); return; }
+            flightOptions.push(val);
+            flightOptions.sort((a,b) => parseInt(a) - parseInt(b)); // Sắp xếp tăng dần
+            input.value = '';
+            renderTable(); // Cập nhật lại danh sách select trong bảng
+        }
+
+        // --- 7. LƯU TRỮ (JSON DI ĐỘNG) ---
+        function saveToJSON() {
+            // Đồng bộ dữ liệu từ bảng trước khi lưu (đề phòng người dùng chưa blur khỏi ô input)
+            document.querySelectorAll('.editable').forEach(input => {
+                if(input.closest('tr')) {
+                    const index = input.closest('tr').dataset.index;
+                    const field = input.dataset.field;
+                    if(index !== undefined) employees[index][field] = input.value;
+                }
+            });
+
+            const data = {
+                flightOptions: flightOptions,
+                employees: employees,
+                nextId: nextId
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lich_bay_${getTodayStr()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function loadFromJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(data.flightOptions) flightOptions = data.flightOptions;
+                    if(data.employees) employees = data.employees;
+                    if(data.nextId) nextId = data.nextId;
+                    renderTable();
+                    alert("Tải dữ liệu lên thành công!");
+                } catch (err) {
+                    alert("Lỗi định dạng file. Vui lòng kiểm tra lại!");
+                }
+            };
+            reader.readAsText(file);
+            // Reset input file để có thể chọn lại file giống tên nếu cần
+            event.target.value = '';
+        }
+
+        // Khởi chạy ứng dụng
         renderTable();
-
-        // (Tùy chọn) Cập nhật trạng thái "Hôm nay" tự động mỗi phút nếu bạn muốn thời gian thực,
-        // nhưng vì nó dựa trên ngày (date) nên chỉ cần reload trang là đổi.
-        // setInterval(renderTable, 60000); // Bỏ comment nếu muốn tự động cập nhật
-
     </script>
 </body>
 </html>
