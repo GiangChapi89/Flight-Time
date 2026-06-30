@@ -9,7 +9,6 @@
             --primary: #f2d27e;
             --border: #ccc;
             --bg: #f4f4f9;
-            --white: #ffffff;
         }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 15px; background-color: var(--bg); }
         h2 { text-align: center; color: #333; font-size: 1.2rem; margin-bottom: 10px; }
@@ -26,10 +25,13 @@
         .btn-success:hover { background: #388E3C; }
         .btn-add { background: #ff9800; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
         .btn-add:hover { background: #f57c00; }
+        .btn-sm-remove { background: #ffebee; border: none; color: #c62828; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; margin-left: 5px; }
+        .btn-sm-remove:hover { background: #ffcdd2; }
+        
         .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; }
         .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
 
-        /* Danh sách quản lý (Flight & Staff) - Đã chuyển lên trên */
+        /* Quản lý danh sách (Staff & Flight) */
         .manager-area { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 15px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); align-items: flex-start; }
         .manager-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 8px; }
         .manager-group label { font-weight: bold; font-size: 14px; color: #333; display: block; }
@@ -73,7 +75,7 @@
 </head>
 <body>
 
-    <h2>QUẢN LÝ LỊCH BAY NHÂN SỰ</h2>
+    <h2>QUẢN LÝ LỊCH BAY</h2>
 
     <!-- Thanh công cụ -->
     <div class="toolbar">
@@ -86,29 +88,35 @@
         </div>
     </div>
 
-    <!-- Khu vực Quản lý Danh sách (Bài bay & Nhân sự) - Đã chuyển lên trên -->
+    <!-- Khu vực Quản lý Danh sách -->
     <div class="manager-area">
-        <!-- Quản lý Bài bay -->
-        <div class="manager-group">
-            <label>Danh sách Bài bay (Mã chuyến)</label>
-            <div class="manager-row">
-                <select id="flightListSelect" class="manager-select">
-                    <!-- Options tự động render bằng JS -->
-                </select>
-                <input type="text" id="newFlightInput" class="manager-input" placeholder="Nhập mã bay (VN123...)" style="min-width: 100px;">
-                <button class="btn-add" onclick="addNewFlightOption()">+ Thêm</button>
-            </div>
-        </div>
-
-        <!-- Quản lý Nhân sự -->
+        <!-- 1. Quản lý Nhân sự (Ở trên) -->
         <div class="manager-group">
             <label>Danh sách Nhân sự</label>
             <div class="manager-row">
                 <select id="staffListSelect" class="manager-select">
-                    <!-- Options tự động render bằng JS -->
+                    <!-- Options tự động render -->
                 </select>
-                <input type="text" id="newStaffInput" class="manager-input" placeholder="Nhập tên nhân sự..." style="min-width: 100px;">
+                <input type="text" id="newStaffInput" class="manager-input" placeholder="Nhập tên nhân sự...">
                 <button class="btn-add" onclick="addNewStaffOption()">+ Thêm</button>
+            </div>
+            <div id="staffTagContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;">
+                <!-- Các thẻ nhân sự có nút xóa sẽ được render tại đây -->
+            </div>
+        </div>
+
+        <!-- 2. Quản lý Bài bay (Ở dưới, không có chữ Mã chuyến) -->
+        <div class="manager-group">
+            <label>Danh sách Bài bay</label>
+            <div class="manager-row">
+                <select id="flightListSelect" class="manager-select">
+                    <!-- Options tự động render -->
+                </select>
+                <input type="text" id="newFlightInput" class="manager-input" placeholder="Nhập mã bay (VN123...)">
+                <button class="btn-add" onclick="addNewFlightOption()">+ Thêm</button>
+            </div>
+            <div id="flightTagContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;">
+                <!-- Các thẻ bài bay có nút xóa sẽ được render tại đây -->
             </div>
         </div>
     </div>
@@ -138,18 +146,22 @@
 
     <script>
         // --- 1. CẤU HÌNH DỮ LIỆU ---
-        let flightOptions = ['VN001', 'VN002', 'QH101', 'VJ888', 'BL666'];
-        let staffOptions = ['Nguyễn Văn A', 'Trần Thị B', 'Lê Văn C', 'Phạm Thị D'];
+        // Yêu cầu: Bài bay từ 1->5. Nhân sự để mảng rỗng.
+        let flightOptions = ['1', '2', '3', '4', '5'];
+        let staffOptions = [];
         
+        // Khởi tạo 2 dòng mẫu. Vì chưa có nhân sự, tên mặc định để trống
         let employees = [
-            { id: 1, name: 'Nguyễn Văn A', flight: 'VN001', gap: 30, lastDate: '2026-05-30' },
-            { id: 2, name: 'Trần Thị B', flight: 'QH101', gap: 45, lastDate: '2026-06-15' }
+            { id: 1, name: '', flight: '1', gap: 30, lastDate: '2026-05-30' },
+            { id: 2, name: '', flight: '2', gap: 45, lastDate: '2026-06-15' }
         ];
         let nextId = 3; 
 
         const tableBody = document.getElementById('tableBody');
         const flightSelect = document.getElementById('flightListSelect');
         const staffSelect = document.getElementById('staffListSelect');
+        const staffTagContainer = document.getElementById('staffTagContainer');
+        const flightTagContainer = document.getElementById('flightTagContainer');
 
         // --- 2. HÀM XỬ LÝ NGÀY ---
         function parseDate(dateString) {
@@ -197,11 +209,9 @@
             return { nextStr, todayStatus, todayClass, checkStatus, checkClass };
         }
 
-        // --- 4. RENDER BẢNG (Có cập nhật logic chọn tên) ---
-        function renderTable() {
-            tableBody.innerHTML = '';
-            
-            // Cập nhật danh sách Select Box quản lý
+        // --- 4. HÀM RENDER DANH SÁCH THẺ (Tags) ---
+        function renderOptionsAndTags() {
+            // Cập nhật Select Box
             flightSelect.innerHTML = '';
             flightOptions.forEach(opt => {
                 const option = document.createElement('option');
@@ -215,31 +225,60 @@
                 staffSelect.appendChild(option);
             });
 
+            // Render Tags Bài bay
+            flightTagContainer.innerHTML = '';
+            flightOptions.forEach(opt => {
+                const span = document.createElement('span');
+                span.style.cssText = "background:#e8f5e9; padding:4px 8px; border-radius:15px; border:1px solid #a5d6a7; display:flex; align-items:center; gap:5px; font-size:13px;";
+                span.innerHTML = `${opt} <button class="btn-sm-remove" onclick="removeFlightOption('${opt}')" style="padding:0 5px;">×</button>`;
+                flightTagContainer.appendChild(span);
+            });
+
+            // Render Tags Nhân sự
+            staffTagContainer.innerHTML = '';
+            staffOptions.forEach(opt => {
+                const span = document.createElement('span');
+                span.style.cssText = "background:#e3f2fd; padding:4px 8px; border-radius:15px; border:1px solid #90caf9; display:flex; align-items:center; gap:5px; font-size:13px;";
+                span.innerHTML = `${opt} <button class="btn-sm-remove" onclick="removeStaffOption('${opt}')" style="padding:0 5px;">×</button>`;
+                staffTagContainer.appendChild(span);
+            });
+        }
+
+        // --- 5. RENDER BẢNG (Yêu cầu khóa Input khi chọn mới) ---
+        function renderTable() {
+            tableBody.innerHTML = '';
+            renderOptionsAndTags(); // Cập nhật danh sách quản lý
+
             employees.forEach((emp, index) => {
                 const calc = calculateRowData(emp);
                 const tr = document.createElement('tr');
                 tr.dataset.index = index;
                 
-                // Tạo Select cho Tên nhân sự (Nếu không có trong danh sách, vẫn hiển thị giá trị hiện tại)
+                // Cột Tên: Dropdown + Input bị readonly
                 let nameSelectHTML = `
                     <select class="editable" data-field="name" style="min-width:100px;">
-                        <option value="">-- Chọn hoặc nhập mới --</option>
+                        <option value="">-- Chọn --</option>
                         ${staffOptions.map(opt => `<option value="${opt}" ${opt === emp.name ? 'selected' : ''}>${opt}</option>`).join('')}
                         <option value="__NEW__">+ Nhập tên mới...</option>
                     </select>
-                    <input type="text" class="editable hidden-input" data-field="name" value="${emp.name}" style="display:none; min-width:100px;" placeholder="Nhập tên mới">
+                    <!-- Input bị readonly (không cho nhập liệu) -->
+                    <input type="text" class="editable hidden-input" data-field="name" value="" style="display:none; min-width:100px;" placeholder="Thêm ở trên" readonly title="Vui lòng thêm tên ở khu vực Danh sách Nhân sự bên trên">
+                `;
+
+                // Cột Bài bay: Dropdown + Input bị readonly
+                let flightSelectHTML = `
+                    <select class="editable" data-field="flight" style="min-width:80px;">
+                        ${flightOptions.map(opt => `<option value="${opt}" ${opt === emp.flight ? 'selected' : ''}>${opt}</option>`).join('')}
+                        <option value="__NEW_FLIGHT__">+ Nhập mã mới...</option>
+                    </select>
+                    <!-- Input bị readonly (không cho nhập liệu) -->
+                    <input type="text" class="editable hidden-input-flight" data-field="flight" value="" style="display:none; min-width:80px;" placeholder="Thêm ở trên" readonly title="Vui lòng thêm mã ở khu vực Danh sách Bài bay bên trên">
                 `;
 
                 tr.innerHTML = `
                     <td style="background:#f2d27e; font-weight:bold;">${emp.id}</td>
                     <td>${nameSelectHTML}</td>
-                    <td>
-                        <select class="editable" data-field="flight" style="min-width:80px;">
-                            ${flightOptions.map(opt => `<option value="${opt}" ${opt === emp.flight ? 'selected' : ''}>${opt}</option>`).join('')}
-                            <option value="__NEW_FLIGHT__">+ Nhập mã mới...</option>
-                        </select>
-                        <input type="text" class="editable hidden-input-flight" data-field="flight" value="${emp.flight}" style="display:none; min-width:80px;" placeholder="Nhập mã bay mới">
-                    </td>
+                    <td>${flightSelectHTML}</td>
                     <td><input type="number" class="editable" data-field="gap" value="${emp.gap}" style="width:50px;"></td>
                     <td><input type="date" class="editable" data-field="lastDate" value="${emp.lastDate}"></td>
                     <td style="background:#e8f5e9; font-weight:bold;">
@@ -258,65 +297,25 @@
             });
         }
 
-        // --- 5. XỬ LÝ SỰ KIỆN (Dropdown chuyển đổi sang Input khi cần) ---
+        // --- 6. XỬ LÝ SỰ KIỆN ---
         document.addEventListener('change', function(e) {
             const target = e.target;
             
-            // Xử lý chuyển đổi Select -> Input cho Tên nhân sự
-            if (target.classList.contains('editable') && target.dataset.field === 'name') {
-                const tr = target.closest('tr');
-                const index = tr.dataset.index;
-                if (target.value === '__NEW__') {
-                    target.style.display = 'none';
-                    const input = tr.querySelector('.hidden-input');
-                    input.style.display = 'block';
-                    input.focus();
-                } else {
-                    employees[index].name = target.value;
-                    renderTable();
-                }
+            // Chuyển đổi Select -> Input khi chọn option "Nhập mới"
+            if (target.classList.contains('editable') && target.dataset.field === 'name' && target.value === '__NEW__') {
+                target.style.display = 'none';
+                const input = target.parentElement.querySelector('.hidden-input');
+                input.style.display = 'block';
+                // Không focus vào input vì nó readonly, người dùng bắt buộc phải dùng nút bên trên để thêm
             }
-            // Xử lý chuyển đổi Select -> Input cho Bài bay (mã bay)
-            if (target.classList.contains('editable') && target.dataset.field === 'flight') {
-                const tr = target.closest('tr');
-                const index = tr.dataset.index;
-                if (target.value === '__NEW_FLIGHT__') {
-                    target.style.display = 'none';
-                    const input = tr.querySelector('.hidden-input-flight');
-                    input.style.display = 'block';
-                    input.focus();
-                } else {
-                    employees[index].flight = target.value;
-                    renderTable();
-                }
+            if (target.classList.contains('editable') && target.dataset.field === 'flight' && target.value === '__NEW_FLIGHT__') {
+                target.style.display = 'none';
+                const input = target.parentElement.querySelector('.hidden-input-flight');
+                input.style.display = 'block';
             }
 
-            // Lưu dữ liệu khi người dùng nhập xong vào ô Input ẩn (chuyển lại thành Select)
-            if (target.classList.contains('hidden-input') || target.classList.contains('hidden-input-flight')) {
-                const tr = target.closest('tr');
-                const index = tr.dataset.index;
-                const field = target.dataset.field;
-                const newVal = target.value.trim();
-                
-                // Cập nhật dữ liệu
-                if (newVal !== '') {
-                    employees[index][field] = newVal;
-                    // Nếu là tên, thêm vào danh sách nhân sự chung
-                    if(field === 'name' && !staffOptions.includes(newVal)) {
-                        staffOptions.push(newVal);
-                        staffOptions.sort((a,b) => a.localeCompare(b));
-                    }
-                    // Nếu là bài bay, thêm vào danh sách chung
-                    if(field === 'flight' && !flightOptions.includes(newVal)) {
-                        flightOptions.push(newVal);
-                        flightOptions.sort((a,b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
-                    }
-                }
-                renderTable(); // Render lại để trở về dạng Dropdown
-            }
-
-            // Các input Date & Number thông thường
-            if (target.classList.contains('editable') && !target.classList.contains('hidden-input') && !target.classList.contains('hidden-input-flight')) {
+            // Lưu dữ liệu khi thay đổi Dropdown thông thường (không phải nhập mới)
+            if (target.classList.contains('editable') && target.value !== '__NEW__' && target.value !== '__NEW_FLIGHT__') {
                 const tr = target.closest('tr');
                 if(!tr) return;
                 const index = tr.dataset.index;
@@ -327,22 +326,13 @@
             }
         });
 
-        // Xử lý sự kiện blur (khi click ra ngoài ô input tùy biến mà chưa chọn trong select)
-        document.addEventListener('blur', function(e) {
-            if (e.target.classList.contains('hidden-input')) {
-                if (e.target.value.trim() === '') {
-                    // Nếu bỏ trống, trả về dropdown
-                    renderTable();
-                }
-            }
-        }, true);
-
+        // --- 7. CÁC NÚT CHỨC NĂNG BẢNG ---
         function addNewRow() {
             const todayStr = getTodayStr();
             employees.push({
                 id: nextId++,
-                name: staffOptions[0] || 'Nhân sự mới',
-                flight: flightOptions[0] || 'VN001',
+                name: '',
+                flight: flightOptions[0] || '1',
                 gap: 30,
                 lastDate: todayStr
             });
@@ -367,7 +357,7 @@
             renderTable();
         }
 
-        // --- 6. QUẢN LÝ DANH SÁCH (THÊM MỚI) ---
+        // --- 8. QUẢN LÝ DANH SÁCH (THÊM & XÓA MỤC) ---
         function addNewFlightOption() {
             const input = document.getElementById('newFlightInput');
             const val = input.value.trim();
@@ -378,7 +368,17 @@
             input.value = '';
             renderTable();
         }
-        
+        function removeFlightOption(valToRemove) {
+            if(confirm(`Bạn có chắc muốn xóa bài bay "${valToRemove}" không?`)) {
+                flightOptions = flightOptions.filter(opt => opt !== valToRemove);
+                // Nếu bài bay bị xóa đang được sử dụng trong bảng, đặt về rỗng
+                employees.forEach(emp => {
+                    if(emp.flight === valToRemove) emp.flight = '';
+                });
+                renderTable();
+            }
+        }
+
         function addNewStaffOption() {
             const input = document.getElementById('newStaffInput');
             const val = input.value.trim();
@@ -389,8 +389,18 @@
             input.value = '';
             renderTable();
         }
+        function removeStaffOption(valToRemove) {
+            if(confirm(`Bạn có chắc muốn xóa nhân sự "${valToRemove}" không?`)) {
+                staffOptions = staffOptions.filter(opt => opt !== valToRemove);
+                // Nếu tên nhân sự bị xóa đang được sử dụng trong bảng, đặt về rỗng
+                employees.forEach(emp => {
+                    if(emp.name === valToRemove) emp.name = '';
+                });
+                renderTable();
+            }
+        }
 
-        // --- 7. LƯU TRỮ ---
+        // --- 9. LƯU TRỮ FILE ---
         function saveToJSON() {
             const data = {
                 flightOptions: flightOptions,
@@ -430,6 +440,7 @@
             event.target.value = '';
         }
 
+        // Khởi chạy
         renderTable();
     </script>
 </body>
