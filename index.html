@@ -1,42 +1,260 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài học multi page Website</title>
+    <title>Quản lý lịch bay nhân sự</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .table-container {
+            overflow-x: auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 800px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #f2d27e;
+            color: #333;
+            font-weight: bold;
+        }
+        input {
+            width: 95%;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 14px;
+        }
+        input[type="date"] {
+            cursor: pointer;
+        }
+        /* Màu sắc trạng thái */
+        .status-green { background-color: #a5d6a7 !important; color: #1b5e20; font-weight: bold; }
+        .status-yellow { background-color: #fff59d !important; color: #f57f17; font-weight: bold; }
+        .status-red { background-color: #ef9a9a !important; color: #b71c1c; font-weight: bold; }
+        
+        .row-id { background-color: #f2d27e; font-weight: bold; }
+        .footer-note {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #fff3cd;
+            border-left: 6px solid #ffc107;
+        }
+    </style>
 </head>
-
 <body>
-    <!-- Thêm các link điều hướng -->
-    <!-- 1. Điều hướng về trang chủ -->
-    <a href="./">Home</a>
-    <!-- 2. Điều hướng đến contact.html -->
-    <a href="./more-info/contact.html">Contact me</a>
-    <!-- 3. Điều hướng đến my-skill.html -->
-    <a href="./more-info/my-skill.html">My skill</a>
 
+    <h2>BẢNG THEO DÕI LỊCH BAY NHÂN SỰ</h2>
+    
+    <div class="table-container">
+        <table id="scheduleTable">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">STT</th>
+                    <th style="width: 150px;">Họ và tên</th>
+                    <th style="width: 80px;">Bài bay</th>
+                    <th style="width: 100px;">Thời gian<br>giãn cách</th>
+                    <th style="width: 130px;">Chuyến<br>gần nhất</th>
+                    <th style="width: 130px;">Chuyến<br>tiếp theo</th>
+                    <th style="width: 130px;">Hôm nay<br>(+ - ngày)</th>
+                    <th style="width: 130px;">Ngày<br>kiểm tra</th>
+                    <th style="width: 130px;">Ngày kiểm tra<br>(+-ngày)</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Các dòng dữ liệu sẽ được JavaScript tạo ra ở đây -->
+            </tbody>
+        </table>
+    </div>
 
-    <h1>Welcome to My Website!</h1>
-    <hr>
-    <h2>Nguyễn Trần Như Nhộng</h2>
-    <p>Creative Director and Designer - Giám đốc sáng tạo và nhà thiết kế</p>
-    <hr>
+    <div class="footer-note">
+        <strong>Lưu ý:</strong> Cột "Chuyến gần nhất" có thể chỉnh sửa. Hệ thống sẽ tự động tính toán "Chuyến tiếp theo", trạng thái "Hôm nay" và "Ngày kiểm tra" dựa trên <strong>ngày hiện tại thực tế</strong> của máy tính bạn.
+    </div>
 
-    <!-- Thêm hình ảnh tuhoc.cc.jpg và khi click chuột sẽ điều hướng đến contact.html  -->
-    <a href="./more-info/contact.html"><img src="./assets/images/tuhoc.cc.jpg" alt="tuhoc.cc"></a>
-    <h2>About me</h2>
-    <p>Xin chào! Tôi là một Giám đốc sáng tạo và Nhà thiết kế đầy nhiệt huyết, mang trong mình niềm đam mê với nghệ
-        thuật và khả năng tạo ra những trải nghiệm độc đáo và gây ấn tượng. Với kinh nghiệm dày dặn và sự tinh tế trong
-        việc nắm bắt xu hướng và sự phát triển, tôi luôn tìm kiếm cách để đưa ra những giải pháp sáng tạo và ứng dụng
-        độc đáo trong mọi dự án.</p>
-    <p>Tôi đảm bảo rằng mỗi dự án sẽ được thực hiện với sự chính xác và sự đổi mới. Tôi không chỉ đơn thuần là một người
-        sáng tạo, mà còn là một người lãnh đạo đội ngũ, đảm bảo rằng mọi thành viên đều được truyền cảm hứng và tận dụng
-        tối đa khả năng của họ để mang lại kết quả xuất sắc.</p>
-    <hr>
+    <script>
+        // 1. Khởi tạo dữ liệu mẫu cho 20 nhân sự (như trong hình ảnh của bạn)
+        // Lấy ngày hiện tại làm mốc tính toán mẫu
+        const today = new Date();
+        // Hàm helper để tạo ngày trong quá khứ (giả lập dữ liệu)
+        function getPastDate(daysAgo) {
+            let d = new Date(today);
+            d.setDate(d.getDate() - daysAgo);
+            return d.toISOString().split('T')[0];
+        }
 
+        // Tạo dữ liệu mặc định
+        let employees = [];
+        // Mốc ngày bắt đầu ảo
+        let baseDate = new Date(today);
+        baseDate.setDate(baseDate.getDate() - 2); // Giả sử hôm nay cách ngày kiểm tra đầu tiên 2 ngày
 
+        for (let i = 1; i <= 20; i++) {
+            // Giả lập logic tuần tự như hình ảnh (Ngày gần nhất cách đây 30 ngày, tăng dần)
+            let gapDays = 30 + (i - 1); 
+            let tempDate = new Date(baseDate);
+            tempDate.setDate(tempDate.getDate() - (30 - i)); // Tạo ngày giả lập dựa trên STT
+            
+            employees.push({
+                id: i,
+                name: `Nguyễn Văn ${i}`,
+                flight: i,
+                gap: gapDays,
+                lastDate: tempDate.toISOString().split('T')[0] // Format YYYY-MM-DD
+            });
+        }
+
+        const tableBody = document.getElementById('tableBody');
+
+        // 2. Hàm tính toán logic
+        function calculateDates(rowData) {
+            // Lấy ngày hiện tại
+            const todayDate = new Date();
+            todayDate.setHours(0,0,0,0);
+
+            // 1. Tính ngày chuyến tiếp theo (Ngày gần nhất + Thời gian giãn cách)
+            const lastDateObj = new Date(rowData.lastDate);
+            const gapNum = parseInt(rowData.gap);
+            const nextDateObj = new Date(lastDateObj);
+            nextDateObj.setDate(nextDateObj.getDate() + gapNum);
+            const nextDateStr = nextDateObj.toISOString().split('T')[0];
+
+            // 2. Tính cột "Hôm nay (+- ngày)"
+            const diffToday = Math.ceil((nextDateObj - todayDate) / (1000 * 60 * 60 * 24));
+            let todayStatus = "";
+            let todayClass = "";
+            
+            if (diffToday > 0) {
+                todayStatus = `+ ${diffToday}`;
+                if (diffToday > 10) todayClass = "status-green";
+                else if (diffToday <= 10) todayClass = "status-yellow";
+            } else {
+                todayStatus = `${diffToday}`; // Số âm
+                todayClass = "status-red";
+            }
+
+            // 3. Tính cột "Ngày kiểm tra (+- ngày)"
+            // Lấy ngày từ ô input Ngày kiểm tra (nếu đang tính lần đầu có thể rỗng, mặc định lấy Ngày gần nhất hoặc Hôm nay làm gốc)
+            // Trong logic đề bài: So sánh ngày kiểm tra với ngày chuyến tiếp theo.
+            // Nếu chưa có ngày kiểm tra nào được chọn, ta mặc định là ngày gần nhất để hiển thị luôn kết quả.
+            // Nhưng để đúng logic động: 
+            // Ta sẽ so sánh NGÀY KIỂM TRA ĐƯỢC NHẬP với NGÀY CHUYẾN TIẾP THEO.
+            // Ở đây tôi sẽ trả về một object chứa kết quả tính dựa trên 1 biến checkDate được truyền vào (mặc định là hôm nay nếu chưa chọn)
+            
+            return {
+                nextDateStr: nextDateStr,
+                diffToday: diffToday,
+                todayStatus: todayStatus,
+                todayClass: todayClass
+            };
+        }
+
+        // 3. Hàm Render bảng
+        function renderTable() {
+            tableBody.innerHTML = '';
+            
+            employees.forEach((emp, index) => {
+                const row = document.createElement('tr');
+                
+                // Lấy kết quả tính toán
+                const calc = calculateDates(emp);
+                const checkDateInput = emp.checkDate ? emp.checkDate : today.toISOString().split('T')[0]; // Mặc định là hôm nay để hiện màu
+
+                // Tính toán cột ngày kiểm tra dựa trên dữ liệu đã lưu
+                const checkDateObj = new Date(checkDateInput);
+                checkDateObj.setHours(0,0,0,0);
+                const nextDateObj = new Date(calc.nextDateStr);
+                nextDateObj.setHours(0,0,0,0);
+                const diffCheck = Math.ceil((nextDateObj - checkDateObj) / (1000 * 60 * 60 * 24));
+                
+                let checkStatus = "";
+                let checkClass = "";
+                if (diffCheck > 0) {
+                    checkStatus = `+ ${diffCheck}`;
+                    if (diffCheck > 10) checkClass = "status-green";
+                    else if (diffCheck <= 10) checkClass = "status-yellow";
+                } else {
+                    checkStatus = `${diffCheck}`;
+                    checkClass = "status-red";
+                }
+
+                row.innerHTML = `
+                    <td class="row-id">${emp.id}</td>
+                    <td>${emp.name}</td>
+                    <td>${emp.flight}</td>
+                    <td>${emp.gap}</td>
+                    <td>
+                        <input type="date" class="last-date-input" value="${emp.lastDate}" data-index="${index}">
+                    </td>
+                    <td style="background-color: #e8f5e9;">${calc.nextDateStr}</td>
+                    <td class="${calc.todayClass}">${calc.todayStatus}</td>
+                    <td>
+                        <input type="date" class="check-date-input" value="${emp.checkDate || ''}" data-index="${index}" placeholder="Chọn ngày">
+                    </td>
+                    <td class="${checkClass}">${emp.checkDate ? checkStatus : ''}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 4. Xử lý sự kiện (Event Listeners)
+        // Sự kiện khi thay đổi cột "Chuyến gần nhất"
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('last-date-input')) {
+                const index = e.target.getAttribute('data-index');
+                const newDate = e.target.value;
+                
+                // Cập nhật dữ liệu
+                employees[index].lastDate = newDate;
+                
+                // Nếu người dùng thay đổi ngày gần nhất, reset ngày kiểm tra để tính lại từ đầu (tùy logic, hoặc giữ nguyên)
+                employees[index].checkDate = ''; 
+                
+                // Render lại bảng
+                renderTable();
+            }
+            
+            // Sự kiện khi thay đổi cột "Ngày kiểm tra"
+            if (e.target.classList.contains('check-date-input')) {
+                const index = e.target.getAttribute('data-index');
+                const newCheckDate = e.target.value;
+                
+                // Cập nhật dữ liệu
+                employees[index].checkDate = newCheckDate;
+                
+                // Render lại bảng
+                renderTable();
+            }
+        });
+
+        // 5. Chạy lần đầu
+        renderTable();
+
+        // (Tùy chọn) Cập nhật trạng thái "Hôm nay" tự động mỗi phút nếu bạn muốn thời gian thực,
+        // nhưng vì nó dựa trên ngày (date) nên chỉ cần reload trang là đổi.
+        // setInterval(renderTable, 60000); // Bỏ comment nếu muốn tự động cập nhật
+
+    </script>
 </body>
-
 </html>
