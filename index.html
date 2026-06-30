@@ -9,6 +9,7 @@
             --primary: #f2d27e;
             --border: #ccc;
             --bg: #f4f4f9;
+            --white: #ffffff;
         }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 15px; background-color: var(--bg); }
         h2 { text-align: center; color: #333; font-size: 1.2rem; margin-bottom: 10px; }
@@ -23,39 +24,47 @@
         .btn-danger:hover { background: #d32f2f; }
         .btn-success { background: #4CAF50; color: white; border-color: #388E3C; }
         .btn-success:hover { background: #388E3C; }
-        .btn-add-flight { background: #ff9800; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .btn-add-flight:hover { background: #f57c00; }
+        .btn-add { background: #ff9800; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .btn-add:hover { background: #f57c00; }
         .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; }
         .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
+
+        /* Danh sách quản lý (Flight & Staff) - Đã chuyển lên trên */
+        .manager-area { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 15px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); align-items: flex-start; }
+        .manager-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 8px; }
+        .manager-group label { font-weight: bold; font-size: 14px; color: #333; display: block; }
+        .manager-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .manager-select { min-width: 120px; padding: 5px; border-radius: 4px; border: 1px solid #aaa; }
+        .manager-input { flex: 1; min-width: 120px; padding: 5px; border-radius: 4px; border: 1px solid #aaa; }
 
         /* Table Container */
         .table-container { overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 5px; }
         table { width: 100%; border-collapse: collapse; min-width: 750px; font-size: 13px; }
-        th, td { border: 1px solid var(--border); padding: 8px 4px; text-align: center; vertical-align: middle; }
-        th { background-color: var(--primary); color: #333; }
+        th, td { border: 1px solid #999; padding: 8px 4px; text-align: center; vertical-align: middle; }
+        th { background-color: var(--primary); color: #222; font-weight: bold; border-color: #555; }
         
         /* Inputs and Selects */
-        input, select { width: 100%; box-sizing: border-box; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-size: 13px; background: white; }
+        input, select { width: 100%; box-sizing: border-box; padding: 6px; border: 1px solid #aaa; border-radius: 4px; text-align: center; font-size: 13px; background: white; }
         select { cursor: pointer; }
-        .action-cell { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
+        
         .btn-remove-row { background: #ffebee; border: 1px solid #ef9a9a; color: #c62828; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
         .btn-remove-row:hover { background: #ffcdd2; }
 
-        /* Status Colors */
-        .status-green { background-color: #a5d6a7 !important; color: #1b5e20; font-weight: bold; }
-        .status-yellow { background-color: #fff59d !important; color: #f57f17; font-weight: bold; }
-        .status-red { background-color: #ef9a9a !important; color: #b71c1c; font-weight: bold; }
+        /* Status Colors (High Contrast) */
+        .status-green { background-color: #1b5e20 !important; color: #ffffff !important; font-weight: bold; border: 2px solid #004d40; }
+        .status-yellow { background-color: #fbc02d !important; color: #1a1a1a !important; font-weight: bold; border: 2px solid #f57f17; }
+        .status-red { background-color: #b71c1c !important; color: #ffffff !important; font-weight: bold; border: 2px solid #880e4f; }
 
         /* Tooltip for overflow */
         .cell-content { max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; display: inline-block; width: 100%; }
         .cell-content:hover { overflow: visible; background: white; z-index: 10; box-shadow: 0 4px 8px rgba(0,0,0,0.2); padding: 4px; border-radius: 4px; white-space: normal; word-break: break-all; position: absolute; top: -5px; left: 0; width: auto; max-width: 250px; }
-        td { position: relative; } /* Để tooltip absolute đúng vị trí */
-
-        .add-flight-row { margin-top: 10px; display: flex; gap: 10px; align-items: center; background: #fafafa; padding: 8px; border-radius: 5px; border: 1px dashed #ccc; }
+        td { position: relative; }
         
         @media (max-width: 600px) { 
             .toolbar { justify-content: center; } 
             .btn { font-size: 12px; padding: 6px 10px; }
+            .manager-area { flex-direction: column; gap: 15px; }
+            .manager-group { width: 100%; }
             table { font-size: 11px; min-width: 650px; }
             th, td { padding: 5px 2px; }
             input, select { font-size: 11px; padding: 4px; }
@@ -68,12 +77,39 @@
 
     <!-- Thanh công cụ -->
     <div class="toolbar">
-        <button class="btn btn-success" onclick="addNewRow()">➕ Thêm</button>
-        <button class="btn btn-danger" onclick="deleteSelectedRow()">🗑️ Xóa</button>
+        <button class="btn btn-success" onclick="addNewRow()">➕ Thêm dòng</button>
+        <button class="btn btn-danger" onclick="deleteSelectedRow()">🗑️ Xóa dòng</button>
         <button class="btn btn-primary" onclick="saveToJSON()">💾 Lưu File</button>
         <div class="file-input-wrapper">
             <button class="btn btn-primary" style="background:#ff9800; border-color:#f57c00;">📂 Tải lên</button>
             <input type="file" id="fileInput" accept=".json" onchange="loadFromJSON(event)">
+        </div>
+    </div>
+
+    <!-- Khu vực Quản lý Danh sách (Bài bay & Nhân sự) - Đã chuyển lên trên -->
+    <div class="manager-area">
+        <!-- Quản lý Bài bay -->
+        <div class="manager-group">
+            <label>Danh sách Bài bay (Mã chuyến)</label>
+            <div class="manager-row">
+                <select id="flightListSelect" class="manager-select">
+                    <!-- Options tự động render bằng JS -->
+                </select>
+                <input type="text" id="newFlightInput" class="manager-input" placeholder="Nhập mã bay (VN123...)" style="min-width: 100px;">
+                <button class="btn-add" onclick="addNewFlightOption()">+ Thêm</button>
+            </div>
+        </div>
+
+        <!-- Quản lý Nhân sự -->
+        <div class="manager-group">
+            <label>Danh sách Nhân sự</label>
+            <div class="manager-row">
+                <select id="staffListSelect" class="manager-select">
+                    <!-- Options tự động render bằng JS -->
+                </select>
+                <input type="text" id="newStaffInput" class="manager-input" placeholder="Nhập tên nhân sự..." style="min-width: 100px;">
+                <button class="btn-add" onclick="addNewStaffOption()">+ Thêm</button>
+            </div>
         </div>
     </div>
 
@@ -83,15 +119,15 @@
             <thead>
                 <tr>
                     <th style="width: 40px;">STT</th>
-                    <th style="min-width: 100px;">Họ và tên</th>
-                    <th style="width: 80px;">Bài bay</th>
+                    <th style="min-width: 120px;">Họ và tên</th>
+                    <th style="width: 100px;">Bài bay</th>
                     <th style="width: 80px;">Giãn cách</th>
                     <th style="width: 130px;">Chuyến gần nhất</th>
                     <th style="width: 130px;">Chuyến tiếp theo</th>
                     <th style="width: 120px;">Hôm nay (+-)</th>
                     <th style="width: 130px;">Ngày kiểm tra</th>
                     <th style="width: 120px;">Ngày k.tra (+-)</th>
-                    <th style="width: 60px;">Hành động</th>
+                    <th style="width: 60px;">H.động</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -100,31 +136,22 @@
         </table>
     </div>
 
-    <!-- Quản lý danh sách Bài bay -->
-    <div class="add-flight-row">
-        <span style="font-weight: bold; white-space: nowrap;">Danh sách Bài bay:</span>
-        <select id="flightListSelect" style="width: 80px; text-align: center;">
-            <!-- Options tự động render bằng JS -->
-        </select>
-        <input type="number" id="newFlightInput" placeholder="Nhập số mới" min="1" style="width: 100px;">
-        <button class="btn-add-flight" onclick="addNewFlightOption()">+ Thêm số</button>
-    </div>
-
     <script>
-        // --- 1. CẤU HÌNH DỮ LIỆU VÀ BIẾN TOÀN CỤC ---
-        // Danh sách bài bay mặc định (1 đến 10)
-        let flightOptions = Array.from({length: 10}, (_, i) => (i + 1).toString());
-        // Dữ liệu nhân sự (Khởi tạo 2 mẫu)
+        // --- 1. CẤU HÌNH DỮ LIỆU ---
+        let flightOptions = ['VN001', 'VN002', 'QH101', 'VJ888', 'BL666'];
+        let staffOptions = ['Nguyễn Văn A', 'Trần Thị B', 'Lê Văn C', 'Phạm Thị D'];
+        
         let employees = [
-            { id: 1, name: 'Nguyễn Văn A', flight: '1', gap: 30, lastDate: '2026-05-30' },
-            { id: 2, name: 'Trần Thị B', flight: '2', gap: 45, lastDate: '2026-06-15' }
+            { id: 1, name: 'Nguyễn Văn A', flight: 'VN001', gap: 30, lastDate: '2026-05-30' },
+            { id: 2, name: 'Trần Thị B', flight: 'QH101', gap: 45, lastDate: '2026-06-15' }
         ];
         let nextId = 3; 
 
         const tableBody = document.getElementById('tableBody');
         const flightSelect = document.getElementById('flightListSelect');
+        const staffSelect = document.getElementById('staffListSelect');
 
-        // --- 2. CÁC HÀM HỖ TRỢ XỬ LÝ NGÀY (An toàn tránh lỗi Timezone) ---
+        // --- 2. HÀM XỬ LÝ NGÀY ---
         function parseDate(dateString) {
             if (!dateString) return null;
             const parts = dateString.split('-');
@@ -142,10 +169,7 @@
             const parts = dateString.split('-');
             return `${parts[2]}/${parts[1]}/${parts[0]}`;
         }
-        // Lấy ngày hôm nay thực tế
-        function getTodayStr() {
-            return formatToYMD(new Date());
-        }
+        function getTodayStr() { return formatToYMD(new Date()); }
 
         // --- 3. HÀM TÍNH TOÁN LOGIC ---
         function calculateRowData(emp) {
@@ -153,17 +177,14 @@
             const todayObj = parseDate(todayStr);
             const lastObj = parseDate(emp.lastDate);
             
-            // Tính ngày chuyến tiếp theo
             const nextObj = new Date(lastObj);
             nextObj.setDate(nextObj.getDate() + parseInt(emp.gap));
             const nextStr = formatToYMD(nextObj);
 
-            // Tính cột Hôm nay (+-)
             const diffToday = Math.ceil((nextObj - todayObj) / (1000 * 60 * 60 * 24));
             let todayStatus = diffToday > 0 ? `+ ${diffToday}` : `${diffToday}`;
             let todayClass = diffToday > 10 ? "status-green" : (diffToday > 0 ? "status-yellow" : "status-red");
 
-            // Tính cột Ngày kiểm tra (+-) dựa trên ngày được chọn
             const checkDateStr = emp.checkDate || todayStr;
             const checkObj = parseDate(checkDateStr);
             const diffCheck = Math.ceil((nextObj - checkObj) / (1000 * 60 * 60 * 24));
@@ -173,35 +194,51 @@
             if(emp.checkDate) {
                 checkClass = diffCheck > 10 ? "status-green" : (diffCheck > 0 ? "status-yellow" : "status-red");
             }
-
             return { nextStr, todayStatus, todayClass, checkStatus, checkClass };
         }
 
-        // --- 4. RENDER BẢNG ---
+        // --- 4. RENDER BẢNG (Có cập nhật logic chọn tên) ---
         function renderTable() {
             tableBody.innerHTML = '';
             
-            // Cập nhật danh sách Bài bay vào Select
+            // Cập nhật danh sách Select Box quản lý
             flightSelect.innerHTML = '';
             flightOptions.forEach(opt => {
                 const option = document.createElement('option');
-                option.value = opt;
-                option.textContent = opt;
+                option.value = opt; option.textContent = opt;
                 flightSelect.appendChild(option);
+            });
+            staffSelect.innerHTML = '';
+            staffOptions.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt; option.textContent = opt;
+                staffSelect.appendChild(option);
             });
 
             employees.forEach((emp, index) => {
                 const calc = calculateRowData(emp);
-                
                 const tr = document.createElement('tr');
                 tr.dataset.index = index;
+                
+                // Tạo Select cho Tên nhân sự (Nếu không có trong danh sách, vẫn hiển thị giá trị hiện tại)
+                let nameSelectHTML = `
+                    <select class="editable" data-field="name" style="min-width:100px;">
+                        <option value="">-- Chọn hoặc nhập mới --</option>
+                        ${staffOptions.map(opt => `<option value="${opt}" ${opt === emp.name ? 'selected' : ''}>${opt}</option>`).join('')}
+                        <option value="__NEW__">+ Nhập tên mới...</option>
+                    </select>
+                    <input type="text" class="editable hidden-input" data-field="name" value="${emp.name}" style="display:none; min-width:100px;" placeholder="Nhập tên mới">
+                `;
+
                 tr.innerHTML = `
                     <td style="background:#f2d27e; font-weight:bold;">${emp.id}</td>
-                    <td><input type="text" class="editable" data-field="name" value="${emp.name}" style="min-width:80px;"></td>
+                    <td>${nameSelectHTML}</td>
                     <td>
-                        <select class="editable" data-field="flight" style="min-width:60px;">
+                        <select class="editable" data-field="flight" style="min-width:80px;">
                             ${flightOptions.map(opt => `<option value="${opt}" ${opt === emp.flight ? 'selected' : ''}>${opt}</option>`).join('')}
+                            <option value="__NEW_FLIGHT__">+ Nhập mã mới...</option>
                         </select>
+                        <input type="text" class="editable hidden-input-flight" data-field="flight" value="${emp.flight}" style="display:none; min-width:80px;" placeholder="Nhập mã bay mới">
                     </td>
                     <td><input type="number" class="editable" data-field="gap" value="${emp.gap}" style="width:50px;"></td>
                     <td><input type="date" class="editable" data-field="lastDate" value="${emp.lastDate}"></td>
@@ -221,98 +258,148 @@
             });
         }
 
-        // --- 5. XỬ LÝ SỰ KIỆN NHẬP LIỆU VÀ NÚT BẤM ---
-        
-        // Lưu dữ liệu khi người dùng thay đổi ô Input/Select
+        // --- 5. XỬ LÝ SỰ KIỆN (Dropdown chuyển đổi sang Input khi cần) ---
         document.addEventListener('change', function(e) {
-            if (e.target.classList.contains('editable')) {
-                const tr = e.target.closest('tr');
+            const target = e.target;
+            
+            // Xử lý chuyển đổi Select -> Input cho Tên nhân sự
+            if (target.classList.contains('editable') && target.dataset.field === 'name') {
+                const tr = target.closest('tr');
+                const index = tr.dataset.index;
+                if (target.value === '__NEW__') {
+                    target.style.display = 'none';
+                    const input = tr.querySelector('.hidden-input');
+                    input.style.display = 'block';
+                    input.focus();
+                } else {
+                    employees[index].name = target.value;
+                    renderTable();
+                }
+            }
+            // Xử lý chuyển đổi Select -> Input cho Bài bay (mã bay)
+            if (target.classList.contains('editable') && target.dataset.field === 'flight') {
+                const tr = target.closest('tr');
+                const index = tr.dataset.index;
+                if (target.value === '__NEW_FLIGHT__') {
+                    target.style.display = 'none';
+                    const input = tr.querySelector('.hidden-input-flight');
+                    input.style.display = 'block';
+                    input.focus();
+                } else {
+                    employees[index].flight = target.value;
+                    renderTable();
+                }
+            }
+
+            // Lưu dữ liệu khi người dùng nhập xong vào ô Input ẩn (chuyển lại thành Select)
+            if (target.classList.contains('hidden-input') || target.classList.contains('hidden-input-flight')) {
+                const tr = target.closest('tr');
+                const index = tr.dataset.index;
+                const field = target.dataset.field;
+                const newVal = target.value.trim();
+                
+                // Cập nhật dữ liệu
+                if (newVal !== '') {
+                    employees[index][field] = newVal;
+                    // Nếu là tên, thêm vào danh sách nhân sự chung
+                    if(field === 'name' && !staffOptions.includes(newVal)) {
+                        staffOptions.push(newVal);
+                        staffOptions.sort((a,b) => a.localeCompare(b));
+                    }
+                    // Nếu là bài bay, thêm vào danh sách chung
+                    if(field === 'flight' && !flightOptions.includes(newVal)) {
+                        flightOptions.push(newVal);
+                        flightOptions.sort((a,b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+                    }
+                }
+                renderTable(); // Render lại để trở về dạng Dropdown
+            }
+
+            // Các input Date & Number thông thường
+            if (target.classList.contains('editable') && !target.classList.contains('hidden-input') && !target.classList.contains('hidden-input-flight')) {
+                const tr = target.closest('tr');
                 if(!tr) return;
                 const index = tr.dataset.index;
-                const field = e.target.dataset.field;
-                employees[index][field] = e.target.value;
-                
-                // Reset ngày kiểm tra nếu thay đổi chuyến gần nhất
-                if(field === 'lastDate') {
-                    employees[index].checkDate = '';
-                }
+                const field = target.dataset.field;
+                employees[index][field] = target.value;
+                if(field === 'lastDate') employees[index].checkDate = '';
                 renderTable();
             }
         });
 
-        // Thêm dòng mới
+        // Xử lý sự kiện blur (khi click ra ngoài ô input tùy biến mà chưa chọn trong select)
+        document.addEventListener('blur', function(e) {
+            if (e.target.classList.contains('hidden-input')) {
+                if (e.target.value.trim() === '') {
+                    // Nếu bỏ trống, trả về dropdown
+                    renderTable();
+                }
+            }
+        }, true);
+
         function addNewRow() {
             const todayStr = getTodayStr();
             employees.push({
                 id: nextId++,
-                name: 'Nhân sự mới',
-                flight: flightOptions[0] || '1',
+                name: staffOptions[0] || 'Nhân sự mới',
+                flight: flightOptions[0] || 'VN001',
                 gap: 30,
                 lastDate: todayStr
             });
             renderTable();
-            // Cuộn xuống dưới cùng (hữu ích trên mobile)
             document.querySelector('.table-container').scrollLeft = 9999;
         }
 
-        // Xóa dòng đang chọn (Xóa dòng cuối cùng nếu chưa chọn dòng nào để tránh lỗi)
         function deleteSelectedRow() {
-            if(employees.length <= 1) {
-                alert("Cần ít nhất 1 nhân sự!");
-                return;
-            }
-            // Lấy dòng đang được focus hoặc dòng cuối
+            if(employees.length <= 1) { alert("Cần ít nhất 1 nhân sự!"); return; }
             const activeInput = document.activeElement;
             let rowToDelete = -1;
             if(activeInput && activeInput.closest('tr')) {
                 rowToDelete = parseInt(activeInput.closest('tr').dataset.index);
             }
-            
             if(rowToDelete === -1 || isNaN(rowToDelete)) {
-                // Nếu không tìm thấy, xóa dòng cuối (hành động an toàn)
-                if(confirm("Bạn chưa chọn dòng nào. Có muốn xóa dòng cuối cùng không?")) {
-                    employees.pop();
-                } else { return; }
+                if(confirm("Bạn chưa chọn dòng nào. Xóa dòng cuối cùng?")) employees.pop();
+                else return;
             } else {
-                if(confirm("Bạn có chắc muốn xóa nhân sự này?")) {
-                    employees.splice(rowToDelete, 1);
-                } else { return; }
+                if(confirm("Bạn có chắc muốn xóa nhân sự này?")) employees.splice(rowToDelete, 1);
+                else return;
             }
             renderTable();
         }
 
-        // --- 6. QUẢN LÝ BÀI BAY ---
+        // --- 6. QUẢN LÝ DANH SÁCH (THÊM MỚI) ---
         function addNewFlightOption() {
             const input = document.getElementById('newFlightInput');
             const val = input.value.trim();
-            if(!val) { alert("Vui lòng nhập số bài bay!"); return; }
-            if(flightOptions.includes(val)) { alert("Số này đã tồn tại!"); return; }
+            if(!val) { alert("Vui lòng nhập mã bài bay!"); return; }
+            if(flightOptions.includes(val)) { alert("Mã này đã tồn tại!"); return; }
             flightOptions.push(val);
-            flightOptions.sort((a,b) => parseInt(a) - parseInt(b)); // Sắp xếp tăng dần
+            flightOptions.sort((a,b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
             input.value = '';
-            renderTable(); // Cập nhật lại danh sách select trong bảng
+            renderTable();
+        }
+        
+        function addNewStaffOption() {
+            const input = document.getElementById('newStaffInput');
+            const val = input.value.trim();
+            if(!val) { alert("Vui lòng nhập tên nhân sự!"); return; }
+            if(staffOptions.includes(val)) { alert("Tên này đã tồn tại!"); return; }
+            staffOptions.push(val);
+            staffOptions.sort((a,b) => a.localeCompare(b));
+            input.value = '';
+            renderTable();
         }
 
-        // --- 7. LƯU TRỮ (JSON DI ĐỘNG) ---
+        // --- 7. LƯU TRỮ ---
         function saveToJSON() {
-            // Đồng bộ dữ liệu từ bảng trước khi lưu (đề phòng người dùng chưa blur khỏi ô input)
-            document.querySelectorAll('.editable').forEach(input => {
-                if(input.closest('tr')) {
-                    const index = input.closest('tr').dataset.index;
-                    const field = input.dataset.field;
-                    if(index !== undefined) employees[index][field] = input.value;
-                }
-            });
-
             const data = {
                 flightOptions: flightOptions,
+                staffOptions: staffOptions,
                 employees: employees,
                 nextId: nextId
             };
-            
             const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
             const url = URL.createObjectURL(blob);
-            
             const a = document.createElement('a');
             a.href = url;
             a.download = `lich_bay_${getTodayStr()}.json`;
@@ -330,6 +417,7 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     if(data.flightOptions) flightOptions = data.flightOptions;
+                    if(data.staffOptions) staffOptions = data.staffOptions;
                     if(data.employees) employees = data.employees;
                     if(data.nextId) nextId = data.nextId;
                     renderTable();
@@ -339,11 +427,9 @@
                 }
             };
             reader.readAsText(file);
-            // Reset input file để có thể chọn lại file giống tên nếu cần
             event.target.value = '';
         }
 
-        // Khởi chạy ứng dụng
         renderTable();
     </script>
 </body>
