@@ -14,7 +14,7 @@
         h2 { text-align: center; color: #333; font-size: 1.2rem; margin-bottom: 10px; }
 
         /* Toolbar Buttons */
-        .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); align-items: center; }
         .btn { background: #eee; border: 1px solid #ccc; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 600; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
         .btn:hover { background: #ddd; }
         .btn-primary { background: #2196F3; color: white; border-color: #1976D2; }
@@ -23,6 +23,11 @@
         .btn-danger:hover { background: #d32f2f; }
         .btn-success { background: #4CAF50; color: white; border-color: #388E3C; }
         .btn-success:hover { background: #388E3C; }
+        .btn-warning { background: #ff9800; color: white; border-color: #f57c00; }
+        .btn-warning:hover { background: #f57c00; }
+        .btn-reset { background: #9E9E9E; color: white; border-color: #757575; }
+        .btn-reset:hover { background: #757575; }
+        
         .btn-add { background: #ff9800; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
         .btn-add:hover { background: #f57c00; }
         .btn-sm-remove { background: #ffebee; border: none; color: #c62828; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; margin-left: 5px; }
@@ -75,12 +80,20 @@
 </head>
 <body>
 
-    <h2>QUẢN LÝ LỊCH BAY</h2>
+    <h2>QUẢN LÝ LỊCH BAY NHÂN SỰ</h2>
 
     <!-- Thanh công cụ -->
     <div class="toolbar">
         <button class="btn btn-success" onclick="addNewRow()">➕ Thêm dòng</button>
         <button class="btn btn-danger" onclick="deleteSelectedRow()">🗑️ Xóa dòng</button>
+        
+        <div style="width: 2px; height: 30px; background: #ccc; margin: 0 5px;"></div> <!-- Divider -->
+        
+        <button class="btn btn-warning" onclick="loadSampleData()">📋 Tải mẫu (10 NV)</button>
+        <button class="btn btn-reset" onclick="resetSystem()">🔄 Reset</button>
+
+        <div style="width: 2px; height: 30px; background: #ccc; margin: 0 5px;"></div> <!-- Divider -->
+
         <button class="btn btn-primary" onclick="saveToJSON()">💾 Lưu File</button>
         <div class="file-input-wrapper">
             <button class="btn btn-primary" style="background:#ff9800; border-color:#f57c00;">📂 Tải lên</button>
@@ -145,17 +158,32 @@
     </div>
 
     <script>
-        // --- 1. CẤU HÌNH DỮ LIỆU ---
-        // Yêu cầu: Bài bay từ 1->5. Nhân sự để mảng rỗng.
+        // --- 1. CẤU HÌNH DỮ LIỆU & TRẠNG THÁI BAN ĐẦU ---
+        // Dữ liệu mẫu tích hợp sẵn trong code (10 nhân sự)
+        const SAMPLE_FLIGHTS = ['1', '2', '3', '4', '5'];
+        const SAMPLE_STAFF = [
+            "Nguyễn Văn An", "Trần Thị Bình", "Lê Văn Cường", "Phạm Thị Dung", 
+            "Hoàng Văn Em", "Đỗ Thị Phương", "Ngô Văn Giang", "Vũ Thị Hà", 
+            "Bùi Văn Hùng", "Đinh Thị Lan"
+        ];
+        const SAMPLE_EMPLOYEES = [
+            { id: 1, name: "Nguyễn Văn An", flight: "1", gap: 30, lastDate: "2026-05-30", checkDate: "2026-06-30" },
+            { id: 2, name: "Trần Thị Bình", flight: "2", gap: 35, lastDate: "2026-05-25", checkDate: "2026-06-29" },
+            { id: 3, name: "Lê Văn Cường", flight: "3", gap: 40, lastDate: "2026-05-20", checkDate: "2026-06-28" },
+            { id: 4, name: "Phạm Thị Dung", flight: "4", gap: 30, lastDate: "2026-06-01", checkDate: "2026-06-27" },
+            { id: 5, name: "Hoàng Văn Em", flight: "5", gap: 45, lastDate: "2026-05-15", checkDate: "2026-06-26" },
+            { id: 6, name: "Đỗ Thị Phương", flight: "1", gap: 28, lastDate: "2026-06-05", checkDate: "2026-06-25" },
+            { id: 7, name: "Ngô Văn Giang", flight: "2", gap: 32, lastDate: "2026-05-28", checkDate: "2026-06-24" },
+            { id: 8, name: "Vũ Thị Hà", flight: "3", gap: 50, lastDate: "2026-05-10", checkDate: "2026-06-23" },
+            { id: 9, name: "Bùi Văn Hùng", flight: "4", gap: 38, lastDate: "2026-05-22", checkDate: "2026-06-22" },
+            { id: 10, name: "Đinh Thị Lan", flight: "5", gap: 42, lastDate: "2026-05-18", checkDate: "2026-06-21" }
+        ];
+
+        // Biến toàn cục lưu trạng thái hệ thống
         let flightOptions = ['1', '2', '3', '4', '5'];
         let staffOptions = [];
-        
-        // Khởi tạo 2 dòng mẫu. Vì chưa có nhân sự, tên mặc định để trống
-        let employees = [
-            { id: 1, name: '', flight: '1', gap: 30, lastDate: '2026-05-30' },
-            { id: 2, name: '', flight: '2', gap: 45, lastDate: '2026-06-15' }
-        ];
-        let nextId = 3; 
+        let employees = [];
+        let nextId = 1; 
 
         const tableBody = document.getElementById('tableBody');
         const flightSelect = document.getElementById('flightListSelect');
@@ -244,34 +272,30 @@
             });
         }
 
-        // --- 5. RENDER BẢNG (Yêu cầu khóa Input khi chọn mới) ---
+        // --- 5. RENDER BẢNG ---
         function renderTable() {
             tableBody.innerHTML = '';
-            renderOptionsAndTags(); // Cập nhật danh sách quản lý
+            renderOptionsAndTags();
 
             employees.forEach((emp, index) => {
                 const calc = calculateRowData(emp);
                 const tr = document.createElement('tr');
                 tr.dataset.index = index;
                 
-                // Cột Tên: Dropdown + Input bị readonly
                 let nameSelectHTML = `
                     <select class="editable" data-field="name" style="min-width:100px;">
                         <option value="">-- Chọn --</option>
                         ${staffOptions.map(opt => `<option value="${opt}" ${opt === emp.name ? 'selected' : ''}>${opt}</option>`).join('')}
                         <option value="__NEW__">+ Nhập tên mới...</option>
                     </select>
-                    <!-- Input bị readonly (không cho nhập liệu) -->
                     <input type="text" class="editable hidden-input" data-field="name" value="" style="display:none; min-width:100px;" placeholder="Thêm ở trên" readonly title="Vui lòng thêm tên ở khu vực Danh sách Nhân sự bên trên">
                 `;
 
-                // Cột Bài bay: Dropdown + Input bị readonly
                 let flightSelectHTML = `
                     <select class="editable" data-field="flight" style="min-width:80px;">
                         ${flightOptions.map(opt => `<option value="${opt}" ${opt === emp.flight ? 'selected' : ''}>${opt}</option>`).join('')}
                         <option value="__NEW_FLIGHT__">+ Nhập mã mới...</option>
                     </select>
-                    <!-- Input bị readonly (không cho nhập liệu) -->
                     <input type="text" class="editable hidden-input-flight" data-field="flight" value="" style="display:none; min-width:80px;" placeholder="Thêm ở trên" readonly title="Vui lòng thêm mã ở khu vực Danh sách Bài bay bên trên">
                 `;
 
@@ -297,24 +321,17 @@
             });
         }
 
-        // --- 6. XỬ LÝ SỰ KIỆN ---
+        // --- 6. XỬ LÝ SỰ KIỆN & CHỨC NĂNG BẢNG ---
         document.addEventListener('change', function(e) {
             const target = e.target;
-            
-            // Chuyển đổi Select -> Input khi chọn option "Nhập mới"
             if (target.classList.contains('editable') && target.dataset.field === 'name' && target.value === '__NEW__') {
                 target.style.display = 'none';
-                const input = target.parentElement.querySelector('.hidden-input');
-                input.style.display = 'block';
-                // Không focus vào input vì nó readonly, người dùng bắt buộc phải dùng nút bên trên để thêm
+                target.parentElement.querySelector('.hidden-input').style.display = 'block';
             }
             if (target.classList.contains('editable') && target.dataset.field === 'flight' && target.value === '__NEW_FLIGHT__') {
                 target.style.display = 'none';
-                const input = target.parentElement.querySelector('.hidden-input-flight');
-                input.style.display = 'block';
+                target.parentElement.querySelector('.hidden-input-flight').style.display = 'block';
             }
-
-            // Lưu dữ liệu khi thay đổi Dropdown thông thường (không phải nhập mới)
             if (target.classList.contains('editable') && target.value !== '__NEW__' && target.value !== '__NEW_FLIGHT__') {
                 const tr = target.closest('tr');
                 if(!tr) return;
@@ -326,7 +343,6 @@
             }
         });
 
-        // --- 7. CÁC NÚT CHỨC NĂNG BẢNG ---
         function addNewRow() {
             const todayStr = getTodayStr();
             employees.push({
@@ -357,7 +373,7 @@
             renderTable();
         }
 
-        // --- 8. QUẢN LÝ DANH SÁCH (THÊM & XÓA MỤC) ---
+        // --- 7. QUẢN LÝ DANH SÁCH (THÊM & XÓA MỤC) ---
         function addNewFlightOption() {
             const input = document.getElementById('newFlightInput');
             const val = input.value.trim();
@@ -371,10 +387,7 @@
         function removeFlightOption(valToRemove) {
             if(confirm(`Bạn có chắc muốn xóa bài bay "${valToRemove}" không?`)) {
                 flightOptions = flightOptions.filter(opt => opt !== valToRemove);
-                // Nếu bài bay bị xóa đang được sử dụng trong bảng, đặt về rỗng
-                employees.forEach(emp => {
-                    if(emp.flight === valToRemove) emp.flight = '';
-                });
+                employees.forEach(emp => { if(emp.flight === valToRemove) emp.flight = ''; });
                 renderTable();
             }
         }
@@ -392,15 +405,43 @@
         function removeStaffOption(valToRemove) {
             if(confirm(`Bạn có chắc muốn xóa nhân sự "${valToRemove}" không?`)) {
                 staffOptions = staffOptions.filter(opt => opt !== valToRemove);
-                // Nếu tên nhân sự bị xóa đang được sử dụng trong bảng, đặt về rỗng
-                employees.forEach(emp => {
-                    if(emp.name === valToRemove) emp.name = '';
-                });
+                employees.forEach(emp => { if(emp.name === valToRemove) emp.name = ''; });
                 renderTable();
             }
         }
 
-        // --- 9. LƯU TRỮ FILE ---
+        // --- 8. NÚT TẢI MẪU (Tích hợp sẵn dữ liệu 10 người) ---
+        function loadSampleData() {
+            if(employees.length > 0) {
+                if(!confirm("Việc này sẽ ghi đè lên dữ liệu hiện tại của bạn. Bạn có muốn tiếp tục không?")) return;
+            }
+            flightOptions = [...SAMPLE_FLIGHTS];
+            staffOptions = [...SAMPLE_STAFF];
+            // Clone sâu dữ liệu mẫu để tránh ảnh hưởng tới biến gốc
+            employees = JSON.parse(JSON.stringify(SAMPLE_EMPLOYEES));
+            // Tìm ID lớn nhất để set nextId
+            let maxId = 0;
+            employees.forEach(emp => { if(emp.id > maxId) maxId = emp.id; });
+            nextId = maxId + 1;
+            
+            renderTable();
+            alert("Đã tải dữ liệu mẫu 10 nhân sự thành công!");
+        }
+
+        // --- 9. NÚT RESET ---
+        function resetSystem() {
+            if(employees.length > 0 || staffOptions.length > 0 || flightOptions.length > 5) {
+                if(!confirm("Bạn có chắc muốn reset toàn bộ hệ thống? Mọi dữ liệu hiện tại sẽ bị xóa.")) return;
+            }
+            // Đặt lại trạng thái ban đầu (Trống, chỉ giữ lại 5 bài bay mặc định)
+            flightOptions = ['1', '2', '3', '4', '5'];
+            staffOptions = [];
+            employees = [];
+            nextId = 1;
+            renderTable();
+        }
+
+        // --- 10. LƯU TRỮ FILE ---
         function saveToJSON() {
             const data = {
                 flightOptions: flightOptions,
@@ -440,7 +481,8 @@
             event.target.value = '';
         }
 
-        // Khởi chạy
+        // --- 11. KHỞI CHẠY LẦN ĐẦU ---
+        // Thiết lập bảng rỗng ban đầu
         renderTable();
     </script>
 </body>
