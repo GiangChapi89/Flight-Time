@@ -1,0 +1,104 @@
+{
+  "flightOptions": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5"
+  ],
+  "staffOptions": [
+    "Nguyễn Văn An",
+    "Trần Thị Bình",
+    "Lê Văn Cường",
+    "Phạm Thị Dung",
+    "Hoàng Văn Em",
+    "Đỗ Thị Phương",
+    "Ngô Văn Giang",
+    "Vũ Thị Hà",
+    "Bùi Văn Hùng",
+    "Đinh Thị Lan"
+  ],
+  "employees": [
+    {
+      "id": 1,
+      "name": "Nguyễn Văn An",
+      "flight": "1",
+      "gap": 30,
+      "lastDate": "2026-05-30",
+      "checkDate": "2026-06-30"
+    },
+    {
+      "id": 2,
+      "name": "Trần Thị Bình",
+      "flight": "2",
+      "gap": 35,
+      "lastDate": "2026-05-25",
+      "checkDate": "2026-06-29"
+    },
+    {
+      "id": 3,
+      "name": "Lê Văn Cường",
+      "flight": "3",
+      "gap": 40,
+      "lastDate": "2026-05-20",
+      "checkDate": "2026-06-28"
+    },
+    {
+      "id": 4,
+      "name": "Phạm Thị Dung",
+      "flight": "4",
+      "gap": 30,
+      "lastDate": "2026-06-01",
+      "checkDate": "2026-06-27"
+    },
+    {
+      "id": 5,
+      "name": "Hoàng Văn Em",
+      "flight": "5",
+      "gap": 45,
+      "lastDate": "2026-05-15",
+      "checkDate": "2026-06-26"
+    },
+    {
+      "id": 6,
+      "name": "Đỗ Thị Phương",
+      "flight": "1",
+      "gap": 28,
+      "lastDate": "2026-06-05",
+      "checkDate": "2026-06-25"
+    },
+    {
+      "id": 7,
+      "name": "Ngô Văn Giang",
+      "flight": "2",
+      "gap": 32,
+      "lastDate": "2026-05-28",
+      "checkDate": "2026-06-24"
+    },
+    {
+      "id": 8,
+      "name": "Vũ Thị Hà",
+      "flight": "3",
+      "gap": 50,
+      "lastDate": "2026-05-10",
+      "checkDate": "2026-06-23"
+    },
+    {
+      "id": 9,
+      "name": "Bùi Văn Hùng",
+      "flight": "4",
+      "gap": 38,
+      "lastDate": "2026-05-22",
+      "checkDate": "2026-06-22"
+    },
+    {
+      "id": 10,
+      "name": "Đinh Thị Lan",
+      "flight": "5",
+      "gap": 42,
+      "lastDate": "2026-05-18",
+      "checkDate": "2026-06-21"
+    }
+  ],
+  "nextId": 11
+}
